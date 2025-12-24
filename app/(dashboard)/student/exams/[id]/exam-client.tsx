@@ -111,21 +111,34 @@ export default function ExamTakingClient({
         // Upload image if exists
         let imageUrl = null;
         if (answer?.image) {
-          const base64Data = answer.image.split(",")[1];
-          const blob = await fetch(
-            `data:image/jpeg;base64,${base64Data}`
-          ).then((r) => r.blob());
-          const fileName = `${initialSubmission.id}/${question.id}.jpg`;
+          try {
+            // Convert base64 to blob properly
+            const base64Response = await fetch(answer.image);
+            const blob = await base64Response.blob();
+            
+            // Create unique filename with timestamp
+            const timestamp = Date.now();
+            const fileName = `${initialSubmission.id}/${question.id}_${timestamp}.jpg`;
 
-          const { data: uploadData } = await supabase.storage
-            .from("answer-images")
-            .upload(fileName, blob, { upsert: true });
-
-          if (uploadData) {
-            const { data: { publicUrl } } = supabase.storage
+            // Upload to Supabase Storage
+            const { data: uploadData, error: uploadError } = await supabase.storage
               .from("answer-images")
-              .getPublicUrl(fileName);
-            imageUrl = publicUrl;
+              .upload(fileName, blob, { 
+                contentType: "image/jpeg",
+                upsert: true 
+              });
+
+            if (uploadError) {
+              console.error("Upload error:", uploadError);
+            } else if (uploadData) {
+              const { data: urlData } = supabase.storage
+                .from("answer-images")
+                .getPublicUrl(fileName);
+              imageUrl = urlData.publicUrl;
+              console.log("Image uploaded successfully:", imageUrl);
+            }
+          } catch (uploadErr) {
+            console.error("Image upload failed:", uploadErr);
           }
         }
 
