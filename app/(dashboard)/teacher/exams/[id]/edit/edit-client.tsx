@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { LatexRenderer } from "@/components/latex-renderer";
+import { QuestionImageUpload } from "@/components/question-image-upload";
 import {
   ArrowLeft,
   PlusCircle,
@@ -39,6 +40,7 @@ interface QuestionForm {
   id?: string;
   type: QuestionType;
   question_text: string;
+  image_url?: string;
   options: string[];
   correct_answer: string;
   marks: number;
@@ -70,6 +72,7 @@ export default function EditExamClient({
       id: q.id,
       type: q.type,
       question_text: q.question_text,
+      image_url: q.image_url || undefined,
       options: q.options || ["", "", "", ""],
       correct_answer: q.correct_answer || "",
       marks: q.marks,
@@ -87,6 +90,7 @@ export default function EditExamClient({
         correct_answer: "",
         marks: 1,
         solution: "",
+        image_url: undefined,
         isNew: true,
       },
     ]);
@@ -149,6 +153,7 @@ export default function EditExamClient({
             question_order: i + 1,
             type: q.type,
             question_text: q.question_text,
+            image_url: q.image_url || null,
             options: q.type === "mcq" ? q.options.filter(Boolean) : null,
             correct_answer: q.type === "mcq" ? q.correct_answer : null,
             marks: q.marks,
@@ -162,6 +167,7 @@ export default function EditExamClient({
               question_order: i + 1,
               type: q.type,
               question_text: q.question_text,
+              image_url: q.image_url || null,
               options: q.type === "mcq" ? q.options.filter(Boolean) : null,
               correct_answer: q.type === "mcq" ? q.correct_answer : null,
               marks: q.marks,
@@ -344,6 +350,13 @@ export default function EditExamClient({
                     </div>
                   )}
                 </div>
+
+                {/* Question Image Upload */}
+                <QuestionImageUpload
+                  imageUrl={question.image_url}
+                  onImageChange={(url) => updateQuestion(actualIndex, { image_url: url || undefined })}
+                  questionIndex={actualIndex}
+                />
 
                 {question.type === "mcq" && (
                   <div className="space-y-3">

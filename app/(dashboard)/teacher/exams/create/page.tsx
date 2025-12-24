@@ -35,6 +35,7 @@ import {
   Eye,
 } from "lucide-react";
 import { LatexRenderer } from "@/components/latex-renderer";
+import { QuestionImageUpload } from "@/components/question-image-upload";
 import type { QuizImport, QuestionType } from "@/lib/types";
 
 interface QuestionForm {
@@ -394,6 +395,13 @@ export default function CreateExamPage() {
                   </div>
                 )}
               </div>
+
+              {/* Question Image Upload */}
+              <QuestionImageUpload
+                imageUrl={question.image_url}
+                onImageChange={(url) => updateQuestion(qIndex, { image_url: url || undefined })}
+                questionIndex={qIndex}
+              />
 
               {question.type === "mcq" && (
                 <div className="space-y-3">
